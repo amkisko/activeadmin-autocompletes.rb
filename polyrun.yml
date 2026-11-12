@@ -1,5 +1,7 @@
 version: 1
 
+workers: 5
+
 coverage:
   output_path: coverage
   formats:

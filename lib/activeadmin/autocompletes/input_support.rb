@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "active_support/core_ext/object/blank"
+
 module ActiveAdmin
   module Autocompletes
     module InputSupport
@@ -41,24 +43,33 @@ module ActiveAdmin
         return {} if raw.blank?
 
         hash = raw.respond_to?(:call) ? template.instance_exec(&raw) : raw
-        hash.to_h.transform_keys(&:to_s).transform_values { |value| value&.to_s }
+        stringify_option_hash(hash, keep_nil: true)
       end
 
       def param_fields
         raw = options[:param_fields]
         return {} if raw.blank?
 
-        raw.to_h.transform_keys(&:to_s).transform_values(&:to_s)
+        stringify_option_hash(raw, keep_nil: false)
       end
 
       def selected_items_for(current_value)
         return [] unless multiple?
 
+        labels = options[:initial_labels]
         Array(current_value).filter_map do |value|
           next if value.blank?
 
-          {value: value, label: label_for_value(value, options[:initial_labels])}
+          {value: value, label: label_for_value(value, labels)}
         end
+      end
+
+      def stringify_option_hash(raw, keep_nil:)
+        out = {}
+        raw.to_h.each do |key, value|
+          out[key.to_s] = keep_nil ? value&.to_s : value.to_s
+        end
+        out
       end
 
       def initial_label_for(current_value)

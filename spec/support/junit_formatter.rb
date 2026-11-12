@@ -1,22 +1,35 @@
 # frozen_string_literal: true
 
-require "polyrun/reporting/rspec_junit"
+require "polyrun/reporting/junit"
 
-# CI: RSpec JSON → JUnit XML (single-process runs). When Polyrun sets POLYRUN_SHARD_INDEX (parallel-rspec
-# workers), emit JSON only to tmp/rspec-<shard>.json so the merge job can run report-junit on tmp/rspec-*.json.
+# CI: Polyrun JUnit export from RSpec JSON.
+# Parallel workers write tmp/rspec-<shard>.json; coverage job merges with
+# `polyrun report-junit -i tmp/rspec-*.json`.
+#
+# Do not call Polyrun::Reporting::RspecJunit.install! after require "polyrun/rspec":
+# bare `RSpec.configure` inside that helper resolves to Polyrun::RSpec (see docs/dependencies).
 if ENV["CI"]
-  if ENV["POLYRUN_SHARD_INDEX"]
-    require "fileutils"
-    require "rspec/core"
-    require "rspec/core/formatters/json_formatter"
+  require "fileutils"
+  require "rspec/core"
+  require "rspec/core/formatters/json_formatter"
 
-    idx = ENV.fetch("POLYRUN_SHARD_INDEX")
-    json_out = File.expand_path("../../tmp/rspec-#{idx}.json", __dir__)
-    FileUtils.mkdir_p(File.dirname(json_out))
-    RSpec.configure do |config|
-      config.add_formatter(RSpec::Core::Formatters::JsonFormatter, json_out)
+  shard = ENV["POLYRUN_SHARD_INDEX"]
+  json_path = File.expand_path(shard ? "../../tmp/rspec-#{shard}.json" : "../../rspec.json", __dir__)
+  FileUtils.mkdir_p(File.dirname(json_path))
+
+  ::RSpec.configure do |config|
+    config.add_formatter(::RSpec::Core::Formatters::JsonFormatter, json_path)
+  end
+
+  unless shard
+    at_exit do
+      next unless File.file?(json_path)
+
+      FileUtils.mkdir_p(File.expand_path("../../coverage", __dir__))
+      Polyrun::Reporting::Junit.write_from_json_file(
+        json_path,
+        output_path: File.expand_path("../../coverage/junit-coverage.xml", __dir__)
+      )
     end
-  else
-    Polyrun::Reporting::RspecJunit.install!
   end
 end

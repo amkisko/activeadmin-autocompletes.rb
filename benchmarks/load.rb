@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# Pressure / load bench for ActiveAdmin Autocompletes Ruby hot paths
-# (limit clamp, offset slice, JSON option payload shaping).
+# Pressure / load bench for ActiveAdmin Autocompletes Ruby hot paths:
+# limit/query clamp, offset slice, JSON option payload, InputSupport shaping.
 #
 # Usage:
 #   SCENARIO=calibrate bundle exec ruby benchmarks/load.rb
@@ -17,7 +17,9 @@ $LOAD_PATH.unshift(polyrun_lib) unless $LOAD_PATH.include?(polyrun_lib)
 
 require "json"
 require "activeadmin/autocompletes/filter_autocomplete"
+require "activeadmin/autocompletes/input_support"
 require "polyrun/benchmark/pressure"
+require_relative "features_batch"
 
 module ActiveAdmin
   module Autocompletes
@@ -25,8 +27,7 @@ module ActiveAdmin
       module Load
         module_function
 
-        STAGES = %w[clamp offset payload].freeze
-        MAX = FilterAutocomplete::MAX_LIMIT
+        STAGES = %w[clamp query offset payload input_support].freeze
 
         def run!
           scenario = ENV.fetch("SCENARIO", "matrix")
@@ -73,10 +74,10 @@ module ActiveAdmin
 
         def matrix!(n0:, pressure_mult:, factor:, samples:)
           results = []
-          baseline = median_sample("baseline_payload", n0, samples) { run_payload_batch!(n0) }
+          baseline = median_sample("baseline_features", n0, samples) { FeaturesBatch.run!(n0) }
           results << baseline
           n1 = [(n0 * pressure_mult).round, 1].max
-          pressure = median_sample("pressure_payload_#{n1}", n1, samples) { run_payload_batch!(n1) }
+          pressure = median_sample("pressure_features_#{n1}", n1, samples) { FeaturesBatch.run!(n1) }
           results << pressure
           propose_ceilings!(pressure, factor: factor)
           results
@@ -84,15 +85,7 @@ module ActiveAdmin
 
         def gate!(n1:, samples:)
           ceilings = load_ceilings
-          [median_sample("gate_payload_#{n1}", n1, samples, targets: ceilings) { run_payload_batch!(n1) }]
-        end
-
-        def run_payload_batch!(n)
-          limit = n.clamp(1, MAX)
-          offset = [n / 10, 0].max
-          rows = Array.new(n) { |i| {"label" => "Item #{i}", "value" => i.to_s, "id" => i} }
-          page = rows[offset, limit] || []
-          JSON.generate(page.map { |item| {"label" => item["label"], "value" => item["value"] || item["id"]} })
+          [median_sample("gate_features_#{n1}", n1, samples, targets: ceilings) { FeaturesBatch.run!(n1) }]
         end
 
         def median_sample(label, ops, samples, targets: nil)

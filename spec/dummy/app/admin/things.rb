@@ -50,6 +50,23 @@ ActiveAdmin.register Thing do
     param_fields: {category_id: "#q_name_eq"},
     initial_label: ->(id) { Thing.find_by(id: id)&.name.to_s }
 
+  form do |f|
+    f.inputs do
+      f.input :name,
+        as: :autocomplete,
+        url: -> { search_options_admin_things_path },
+        initial_label: ->(value) { value.to_s }
+
+      f.input :code,
+        as: :autocomplete,
+        multiple: true,
+        value_field: true,
+        url: -> { code_options_admin_things_path },
+        initial_labels: ->(value) { value.to_s }
+    end
+    f.actions
+  end
+
   index do
     column :id
     column :name

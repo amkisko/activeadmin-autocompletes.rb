@@ -14,7 +14,17 @@ SCENARIO=calibrate bundle exec ruby benchmarks/load.rb
 # or: make bench-calibrate
 ```
 
-Distinct stages: `clamp`, `offset`, `payload`. Fail if stage order or wall separation collapses.
+Distinct stages: `clamp`, `query`, `offset`, `payload`, `input_support`. Fail if stage order or wall separation collapses.
+
+## Features under probe
+
+Ruby first-party hot paths only:
+
+- `FilterAutocomplete.clamp_limit` / `clamp_query`
+- option-row offset slice and JSON payload shaping
+- `InputSupport` locals (params, param_fields, page_size, selected chips, labels)
+
+Stimulus / fetch marked `not_in_scope` (network). Formtastic/Rails render stays out of the process probe.
 
 ## Ceilings
 
@@ -22,7 +32,8 @@ Distinct stages: `clamp`, `offset`, `payload`. Fail if stage order or wall separ
 
 ## Load axis
 
-- `N` — number of option rows synthesized / clamped / offset-sliced per sample
+- `N` — clamp iterations plus virtual catalog size for offset/page math per sample
+- Payload page retains at most `MAX_LIMIT` option hashes (production-shaped); do not retain N hashes
 - L0 default `N=5_000` (`BENCH_N`)
 - L1 default `N=25_000` (`PRESSURE_MULT≈5`)
 
@@ -46,4 +57,8 @@ Distinct stages: `clamp`, `offset`, `payload`. Fail if stage order or wall separ
 
 ## Network
 
-`not_in_scope` (pure Ruby clamp/slice/payload shaping; Stimulus/fetch not in probe)
+`not_in_scope` (pure Ruby clamp/slice/payload/InputSupport; Stimulus/fetch not in probe)
+
+## Browser list window
+
+Stimulus keeps at most `MAX_LIST_ITEMS` (100) option DOM nodes while scrolling. That series is not in the Ruby pressure probe and has no accepted browser meter yet. Do not gate CI on list-window memory until a separate binding names the probe, load axis, and ceilings.

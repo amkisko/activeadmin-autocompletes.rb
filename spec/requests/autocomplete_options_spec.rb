@@ -71,4 +71,19 @@ RSpec.describe "ActiveAdmin autocomplete options", type: :request do
     expect(response.body).to include("data-activeadmin-autocompletes--filter-autocomplete-param-fields-value=")
     expect(response.body).to include("&quot;category_id&quot;:&quot;#q_name_eq&quot;")
   end
+
+  it "renders new and edit forms with autocomplete inputs" do
+    thing = Thing.create!(name: "Editable Thing", code: "ED")
+
+    get new_admin_thing_path
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("activeadmin-autocompletes--filter-autocomplete")
+    expect(response.body).to include("thing[name]")
+    expect(response.body).to include("thing[code][]")
+
+    get edit_admin_thing_path(thing)
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Editable Thing")
+    expect(response.body).to include("activeadmin-autocompletes--filter-autocomplete")
+  end
 end

@@ -19,6 +19,7 @@ export default class extends Controller {
 
   static MAX_PAGE_SIZE = 50;
   static MAX_QUERY_CHARS = 200;
+  static MAX_LIST_ITEMS = 100;
 
   connect() {
     this.activeIndex = -1;
@@ -185,6 +186,7 @@ export default class extends Controller {
   renderList(items, { append }) {
     if (!append) this.listTarget.replaceChildren();
 
+    const fragment = document.createDocumentFragment();
     items.forEach((item) => {
       const option = document.createElement("li");
       option.className = OPTION_CLASS;
@@ -193,8 +195,10 @@ export default class extends Controller {
       option.dataset.label = item.label ?? item.value ?? item.id;
       option.textContent = item.label ?? item.value ?? item.id;
       option.setAttribute("role", "option");
-      this.listTarget.appendChild(option);
+      fragment.appendChild(option);
     });
+    this.listTarget.appendChild(fragment);
+    this.trimListWindow();
 
     if (this.listTarget.children.length === 0) {
       this.close();
@@ -202,6 +206,14 @@ export default class extends Controller {
     }
 
     this.listTarget.classList.remove("hidden");
+  }
+
+  trimListWindow() {
+    const max = this.constructor.MAX_LIST_ITEMS;
+    while (this.listTarget.children.length > max) {
+      this.listTarget.firstElementChild.remove();
+      if (this.activeIndex >= 0) this.activeIndex -= 1;
+    }
   }
 
   select(event) {
@@ -230,14 +242,18 @@ export default class extends Controller {
   }
 
   addValue(value, label) {
-    if (!value || this.selected.some((item) => String(item.value) === String(value))) return;
-    this.selected = [...this.selected, { value: String(value), label: label || String(value) }];
+    const key = String(value);
+    if (!value || this.selected.some((item) => item.value === key)) return;
+    this.selected.push({ value: key, label: label || key });
     this.syncSelectedInputs();
     this.renderChips();
   }
 
   removeValue(value) {
-    this.selected = this.selected.filter((item) => String(item.value) !== String(value));
+    const key = String(value);
+    const index = this.selected.findIndex((item) => item.value === key);
+    if (index < 0) return;
+    this.selected.splice(index, 1);
     this.syncSelectedInputs();
     this.renderChips();
   }

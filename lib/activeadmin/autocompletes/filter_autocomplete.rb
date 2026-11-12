@@ -13,7 +13,7 @@ module ActiveAdmin
 
       def self.clamp_query(raw)
         query = raw.to_s.strip
-        query = query.byteslice(0, MAX_QUERY_CHARS).to_s
+        query = query.byteslice(0, MAX_QUERY_CHARS) if query.bytesize > MAX_QUERY_CHARS
         query.empty? ? nil : query
       end
 
