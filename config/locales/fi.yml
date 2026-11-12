@@ -1,0 +1,4 @@
+fi:
+  active_admin:
+    autocompletes:
+      filter_placeholder: Kirjoita hakeaksesi

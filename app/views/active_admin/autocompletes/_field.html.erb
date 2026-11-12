@@ -1,0 +1,70 @@
+<%
+  object_name = local_assigns.fetch(:object_name)
+  field_name = local_assigns.fetch(:field_name)
+  field_id = "#{object_name}_#{field_name}".gsub(/[\[\]]+/, "_").gsub(/_+\z/, "")
+  list_id = "#{field_id}_options"
+  controller = local_assigns.fetch(:controller_name, "activeadmin-autocompletes--filter-autocomplete")
+  value_field = local_assigns.fetch(:value_field, false)
+  multiple = local_assigns.fetch(:multiple, false)
+  initial_value = local_assigns.fetch(:initial_value, nil)
+  initial_label = local_assigns.fetch(:initial_label, nil)
+  selected_items = Array(local_assigns.fetch(:selected_items, []))
+  display_value = value_field && !multiple ? initial_label.to_s : (multiple ? "" : initial_value.to_s)
+  placeholder = local_assigns.fetch(:placeholder, I18n.t("active_admin.autocompletes.filter_placeholder", default: "Type to search"))
+  label_text = local_assigns.fetch(:label_text, field_name.to_s.humanize)
+  search_url = local_assigns.fetch(:search_url)
+  page_size = local_assigns[:page_size]
+  params_payload = local_assigns.fetch(:params, {})
+  param_fields_payload = local_assigns.fetch(:param_fields, {})
+  field_param_name = multiple ? "#{object_name}[#{field_name}][]" : "#{object_name}[#{field_name}]"
+%>
+<div
+  data-controller="<%= controller %>"
+  data-<%= controller %>-url-value="<%= search_url %>"
+  data-<%= controller %>-multiple-value="<%= multiple %>"
+  <% if page_size.present? %>data-<%= controller %>-page-size-value="<%= page_size %>"<% end %>
+  <% if params_payload.present? %>data-<%= controller %>-params-value="<%= ERB::Util.html_escape(params_payload.to_json) %>"<% end %>
+  <% if param_fields_payload.present? %>data-<%= controller %>-param-fields-value="<%= ERB::Util.html_escape(param_fields_payload.to_json) %>"<% end %>
+  data-field-name="<%= field_param_name %>"
+  data-testid="filter-autocomplete-<%= field_name %>"
+  class="relative w-full"
+>
+  <% if multiple %>
+    <div data-<%= controller %>-target="chips" class="mb-2 flex flex-wrap gap-1"></div>
+    <% selected_items.each do |item| %>
+      <input
+        type="hidden"
+        name="<%= field_param_name %>"
+        value="<%= ERB::Util.html_escape(item.fetch(:value).to_s) %>"
+        data-label="<%= ERB::Util.html_escape(item.fetch(:label).to_s) %>"
+        data-<%= controller %>-target="selected" />
+    <% end %>
+  <% elsif value_field %>
+    <input
+      type="hidden"
+      name="<%= field_param_name %>"
+      value="<%= ERB::Util.html_escape(initial_value.to_s) %>"
+      data-<%= controller %>-target="value" />
+  <% end %>
+  <input
+    id="<%= field_id %>"
+    type="text"
+    <% unless value_field || multiple %>name="<%= field_param_name %>"<% end %>
+    value="<%= ERB::Util.html_escape(display_value) %>"
+    placeholder="<%= ERB::Util.html_escape(placeholder) %>"
+    autocomplete="off"
+    class="w-full"
+    role="combobox"
+    aria-label="<%= ERB::Util.html_escape(label_text.to_s) %>"
+    aria-autocomplete="list"
+    aria-controls="<%= list_id %>"
+    aria-expanded="false"
+    data-<%= controller %>-target="query"
+    data-action="input-><%= controller %>#search focus-><%= controller %>#open keydown-><%= controller %>#navigate" />
+  <ul
+    id="<%= list_id %>"
+    data-<%= controller %>-target="list"
+    data-action="scroll-><%= controller %>#loadMore"
+    class="hidden absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded border border-gray-300 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-900"
+    role="listbox"></ul>
+</div>

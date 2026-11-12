@@ -1,0 +1,16 @@
+module ActiveAdmin
+  module Autocompletes
+    VERSION: String
+
+    module FilterAutocomplete
+      DEFAULT_LIMIT: Integer
+      MAX_LIMIT: Integer
+      MAX_QUERY_CHARS: Integer
+
+      def self.clamp_limit: (untyped raw) -> Integer
+      def self.clamp_query: (untyped raw) -> String?
+
+      def filter_autocomplete: (untyped attribute, ?action: untyped?) { (query: String?, limit: Integer, offset: Integer) -> untyped } -> void
+    end
+  end
+end
