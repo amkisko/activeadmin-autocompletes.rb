@@ -1,0 +1,4 @@
+sv:
+  active_admin:
+    autocompletes:
+      filter_placeholder: Skriv för att söka

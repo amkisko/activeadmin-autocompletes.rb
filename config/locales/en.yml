@@ -1,0 +1,4 @@
+en:
+  active_admin:
+    autocompletes:
+      filter_placeholder: Type to search
