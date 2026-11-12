@@ -122,6 +122,7 @@ Related: `dependency-issues` records upstream defects found during real work; `m
 <!-- pray:ad13bd27 -->
 - test coverage must follow @spec/README.md guidelines;
 - use ruby and Rails features according to the codebase versions;
+- prefer host APIs, toolchains, and the tree's ordinary process model; keep its declared runtime; add virtualization, containerization, or emulation only for a named requirement the ordinary host execution cannot meet;
 - follow ruby and Rails coding conventions, principles, and best practices;
 - schema DDL in `db/migrate`; row backfills in `db/data_migrations`; keep `up` and `change` as schema DDL;
 - page large backfills with an id cursor or `offset`/`limit`; pass `total_records` and `processed_count`; `enqueue` the next page; when `enqueue` is absent (console `new.perform`), drain remaining pages in the same `perform`;
@@ -215,6 +216,8 @@ Examples:
 - `trunk/2026-august-pack`
 - `plan/auth-redesign-notes`
 - `plan/2026-q2-roadmap`
+
+Related: `planned-release` names commitment, collection period, period label, and prepare/deliver events; its skill owns defaults, binding, and process signals. The `trunk/<title>` prefix names a candidate branch. The stable line is a separate role.
 <!-- pray:26f3566a -->
 
 <!-- pray:f528eeca -->
@@ -234,9 +237,8 @@ Examples:
 - catalog assignment starts empty when a default first row would apply a change
 - a command that writes a record must look like a command
 
-Related: the `preferred-stack` skill owns proximity bands and the selection procedure; `minimal-implementation` keeps scope small and repeats the tree-language match; language packs (`ruby-conventions`, `rust-conventions`, `elixir-conventions`, `kotlin-conventions`) own how to write after the choice; `keep-the-work` covers staying on the failed place after a refusal.
+Related: the `preferred-stack` skill owns proximity bands and the selection procedure; `minimal-implementation` keeps scope small and repeats the tree-language match; language packs (`ruby-conventions`, `rust-conventions`, `elixir-conventions`, `kotlin-conventions`, `swift-conventions`) own how to write after the choice; `keep-the-work` covers staying on the failed place after a refusal.
 <!-- pray:f528eeca -->
-
 
 <!-- pray:ca94e22d -->
 ## Writing and changelog prose checks
@@ -310,6 +312,3 @@ Claim `rfcs/ids/NNNN` before writing `rfcs/NNNN-slug.md`. Copy `rfcs/0000-templa
 - use the lightest trace that preserves context; design-only work needs no branch unless implementation starts; put that exploration under `docs/plans`;
 - follow docs-conventions for `docs/` and `usr/`; when encoding how this tree writes, use infer-conventions.
 <!-- pray:48e8a6b3 -->
-
-
-
