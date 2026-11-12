@@ -1,4 +1,4 @@
-# Polyrun RspecJunit.install! shadows ::RSpec
+# Polyrun RspecJunit.install! shadows ::RSpec (resolved)
 
 ## Participants
 
@@ -6,27 +6,28 @@ Andrei Makarov (@amkisko)
 
 ## Dependency
 
-polyrun 2.2.9 (`Gemfile.lock` / appraisal locks: `polyrun (>= 2.2.9)`)
+polyrun: was 2.2.9; now 3.0.0 (`Gemfile.lock` / appraisal locks: `polyrun (>= 3.0.0)`)
 
 ## Symptom
 
-`Polyrun::Reporting::RspecJunit.install!` raises `NoMethodError: undefined method 'configure' for module Polyrun::RSpec` when `require "polyrun/rspec"` has already defined `Polyrun::RSpec`. Bare `RSpec.configure` inside `lib/polyrun/reporting/rspec_junit.rb` resolves to `Polyrun::RSpec`, not `::RSpec`.
+On 2.2.9, `Polyrun::Reporting::RspecJunit.install!` raised `NoMethodError: undefined method 'configure' for module Polyrun::RSpec` when `require "polyrun/rspec"` had already defined `Polyrun::RSpec`. Bare `RSpec.configure` inside `rspec_junit.rb` resolved to `Polyrun::RSpec`, not `::RSpec`.
 
 ## Evidence
 
-1. `require "polyrun/rspec"` then `require "polyrun/reporting/rspec_junit"` then `Polyrun::Reporting::RspecJunit.install!` with `CI=1`.
-2. Failure at `RSpec.configure` in `rspec_junit.rb` (polyrun 2.2.9); same source on polyrun.rb main still uses bare `RSpec.configure`.
-3. This repo loads `polyrun/rspec` before `spec/support/junit_formatter.rb` in `spec/spec_helper.rb`, so `install!` is unsafe here.
+1. Reproduced under polyrun 2.2.9 with `require "polyrun/rspec"` then `RspecJunit.install!` and `CI=1`.
+2. polyrun 3.0.0 CHANGELOG: rename `Polyrun::RSpec` to `Polyrun::RSpecSupport` (`polyrun/rspec_support`); fix `RspecJunit.install!` with `::RSpec` qualification.
+3. After bump: `require "polyrun/rspec_support"` then `RspecJunit.install!` registers `::RSpec::Core::Formatters::JsonFormatter`; `POLYRUN_COVERAGE=1 polyrun parallel-rspec --workers 5 --merge-failures` PASS and writes `coverage/merged.json`.
 
 ## Suggested fix
 
-Upstream: use `::RSpec.configure` and `::RSpec::Core::Formatters::JsonFormatter` in `RspecJunit.install!`. Workaround here: wire `::RSpec` JSON formatter and call `Polyrun::Reporting::Junit.write_from_json_file` (and CI `polyrun report-junit` for shards).
+Upgrade to polyrun >= 3.0.0; use `Polyrun::RSpecSupport` and restore `RspecJunit.install!` with shard-aware paths. Done in this tree.
 
 ## Next
 
-Report or PR upstream polyrun; bump when a release includes `::RSpec` qualification.
+None for this defect.
 
 ## Source
 
-- `lib/polyrun/reporting/rspec_junit.rb` in polyrun 2.2.9
-- `spec/support/junit_formatter.rb`, `spec/spec_helper.rb` in this repo
+- https://github.com/amkisko/polyrun.rb/blob/main/CHANGELOG.md (3.0.0)
+- `spec/support/junit_formatter.rb`, `spec/spec_helper.rb`
+- `docs/dependencies/20261112161050_polyrun-3-0-0-upgrade.md`

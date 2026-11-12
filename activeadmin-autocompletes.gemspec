@@ -50,7 +50,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "appraisal", "~> 2"
   spec.add_development_dependency "bundler", ">= 2"
   spec.add_development_dependency "bundler-audit", "~> 0.9"
-  spec.add_development_dependency "polyrun", ">= 2.2.9"
+  spec.add_development_dependency "polyrun", ">= 3.0.0"
   spec.add_development_dependency "rake", "~> 13"
   spec.add_development_dependency "rbs", "~> 4"
   spec.add_development_dependency "rspec", "~> 3"
