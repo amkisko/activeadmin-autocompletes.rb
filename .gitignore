@@ -60,4 +60,19 @@ Thumbs.db
 
 .pray
 
-/benchmarks/output
+# Benchmark run artifacts (ceilings.json stays tracked)
+/benchmarks/output/
+
+# Env variants
+/.env.*
+!/.env.example
+
+# Spec / debug
+/spec/reports/
+.byebug_history
+
+# SQLite sidecar files
+/spec/dummy/db/*.sqlite3-*
+
+# Security-audit local evidence (if written in-tree)
+/agents/*/artifacts/
