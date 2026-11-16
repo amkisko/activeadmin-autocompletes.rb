@@ -25,6 +25,21 @@ def execute_command(command)
   end
 end
 
+# Multi-push-URL remotes (GitLab/Codeberg mirrors) may fail while GitHub
+# already accepted the ref. Warn and continue so gh release still runs.
+def try_command(command)
+  yellow = "\033[1;33m"
+  green = "\033[0;32m"
+  nc = "\033[0m"
+
+  puts "#{green}#{command}#{nc}"
+  shell_command = command.include?("|") ? "set -o pipefail; #{command}" : command
+  return true if system("bash", "-c", shell_command)
+
+  puts "#{yellow}Continuing after non-fatal failure: #{command}#{nc}"
+  false
+end
+
 gemspec = Dir.glob("*.gemspec").fetch(0)
 gem_name = File.basename(gemspec, ".gemspec")
 
@@ -81,5 +96,5 @@ end
 
 execute_command("gem push #{gem_file}")
 execute_command("git tag #{version}")
-execute_command("git push origin HEAD \"refs/tags/#{version}\"")
+try_command("git push origin HEAD \"refs/tags/#{version}\"")
 execute_command("gh release create #{version} --generate-notes")
