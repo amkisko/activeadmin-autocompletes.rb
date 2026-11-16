@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    activeadmin-autocompletes (0.3.0)
+    activeadmin-autocompletes (0.4.0)
       activeadmin (>= 4.0.0.beta23, < 5)
       importmap-rails
       rails (>= 7.2.3.2)
@@ -464,7 +464,7 @@ CHECKSUMS
   actiontext (8.1.4.1) sha256=fb59611dc16e2b6bbfcec66793acfae6cdd64b1e35ef3f9175424f31e62c38da
   actionview (8.1.4.1) sha256=d25b4d9cf8d0c0195ffcfe8b2cf3fcbe6fea54fd7c17f1a9cb8182881463f12b
   activeadmin (4.0.0.beta23) sha256=bfa37e8dcb2288495260d1a13070f1d43d997096db53b085a2c21c4277f8deab
-  activeadmin-autocompletes (0.3.0)
+  activeadmin-autocompletes (0.4.0)
   activeadmin-graphql (0.4.1) sha256=a3a4987a83e3bddb27af581d94884a5a0b25ac6e5cb017c753a03e0e9006232f
   activejob (8.1.4.1) sha256=82c4c9311ea1016d5f7f134a0c5f9b6527cad5a6237f5f3f60aa17984ef36229
   activemodel (8.1.4.1) sha256=063caf105372fbc98b2d789e4be23de63ac5c043f7d9330f04e2caddb7012805
