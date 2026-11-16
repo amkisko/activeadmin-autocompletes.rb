@@ -39,6 +39,8 @@ Fixed this pass (audit iteration):
 2. Include appraisal lockfiles in the first public commit.
 3. Finer authorization than `authorize! :index` remains a host concern unless a later contract adds an action override.
 
+Later pass (2026-11-16): ActiveAdmin auth on options, zero-line routes docs, Playwright e2e, and GraphQL admin coexistence live in `docs/issues/20261116115500_activeadmin-auth-routes-and-e2e.md`.
+
 ## Source
 
 - Peer: `activeadmin-device_authorization.rb`

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 0.4.0 (2026-11-16)
+
+- Require ActiveAdmin `authentication_method` on options `collection_action` paths; document zero-line `routes.rb` ownership under `ActiveAdmin.routes`
+- Add Capybara Playwright system specs for filter autocomplete and GraphQL admin coexistence
+- Add request coverage for unauthenticated and authorization-denied options responses
+- Fix non-`value_field` select so the combobox keeps the option label (not the raw id)
+
 ## 0.3.0 (2026-11-12)
 
 - Add `params:` and `param_fields:` on autocomplete inputs so options requests can carry static keys and live sibling-field values

@@ -1,0 +1,4 @@
+/* Dummy has no Tailwind build; keep a readable admin shell for system specs. */
+body {
+  font-family: system-ui, sans-serif;
+}

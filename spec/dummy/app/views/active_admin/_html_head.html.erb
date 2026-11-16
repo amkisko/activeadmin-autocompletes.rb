@@ -1,3 +1,8 @@
+<%= stylesheet_link_tag "active_admin" %>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <%= csrf_meta_tags %>
 <%= csp_meta_tag %>
+<style>
+  .hidden { display: none !important; }
+</style>
+<%= javascript_importmap_tags "active_admin_autocompletes_boot", importmap: ActiveAdmin.importmap %>

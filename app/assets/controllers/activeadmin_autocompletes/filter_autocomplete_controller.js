@@ -231,7 +231,8 @@ export default class extends Controller {
       this.valueTarget.value = value || "";
       this.queryTarget.value = label || value || "";
     } else {
-      this.queryTarget.value = value || "";
+      // Submitted filter text is the visible query; keep the option label.
+      this.queryTarget.value = label || value || "";
     }
     this.close();
   }

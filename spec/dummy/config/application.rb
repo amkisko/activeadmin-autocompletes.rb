@@ -7,7 +7,9 @@ require "active_model/railtie"
 require "active_record/railtie"
 require "action_controller/railtie"
 require "action_view/railtie"
+require "propshaft"
 require "importmap-rails"
+require "stimulus-rails"
 
 if Rails.env.test?
   Bundler.require(:default, :test, :development)
@@ -17,6 +19,7 @@ end
 
 require "activeadmin"
 require "activeadmin/autocompletes"
+require "activeadmin/graphql"
 
 module Dummy
   class Application < Rails::Application

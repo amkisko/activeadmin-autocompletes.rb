@@ -3,6 +3,10 @@
 require "rails_helper"
 
 RSpec.describe "ActiveAdmin autocomplete options", type: :request do
+  let(:admin) { create(:admin_user) }
+
+  before { sign_in(admin) }
+
   it "returns JSON options for the default search endpoint" do
     match = Thing.create!(name: "Helsinki Depot", code: "HKI")
     Thing.create!(name: "Other Place", code: "OTH")
@@ -85,5 +89,41 @@ RSpec.describe "ActiveAdmin autocomplete options", type: :request do
     expect(response).to have_http_status(:ok)
     expect(response.body).to include("Editable Thing")
     expect(response.body).to include("activeadmin-autocompletes--filter-autocomplete")
+  end
+
+  describe "ActiveAdmin authentication and authorization" do
+    it "rejects unauthenticated options requests" do
+      sign_out
+
+      get search_options_admin_things_path, params: {q: "Helsinki"}, as: :json
+
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    it "rejects options when the authorization adapter denies index" do
+      namespace = ActiveAdmin.application.namespaces[:admin]
+      previous_adapter = namespace.authorization_adapter
+      namespace.authorization_adapter = Class.new(ActiveAdmin::AuthorizationAdapter) do
+        def authorized?(*)
+          false
+        end
+      end
+
+      get search_options_admin_things_path, params: {q: "Helsinki"}, as: :json
+
+      # ActiveAdmin AccessDenied JSON uses unauthorized (not forbidden).
+      expect(response).to have_http_status(:unauthorized)
+      expect(response.parsed_body).to include("error")
+    ensure
+      namespace.authorization_adapter = previous_adapter
+    end
+
+    it "rejects unauthenticated HTML admin pages" do
+      sign_out
+
+      get admin_things_path
+
+      expect(response).to have_http_status(:unauthorized)
+    end
   end
 end

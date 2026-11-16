@@ -26,6 +26,18 @@ From git:
 gem "activeadmin-autocompletes", github: "amkisko/activeadmin-autocompletes.rb"
 ```
 
+## Routes
+
+Keep `ActiveAdmin.routes(self)`. `filter_autocomplete` registers a GET
+`collection_action` on the resource, so hosts need no autocomplete line in
+`routes.rb` (zero gem lines). Options inherit ActiveAdmin
+`authentication_method` and call `authorize! :index` on the resource class.
+Mapper placement alone is not the auth boundary.
+
+This gem does not ship public unauthenticated options routes. A host that needs
+a non-admin JSON search endpoint must declare that route explicitly in
+`routes.rb` and own its authentication; that path is outside this gem.
+
 ## Usage
 
 ```ruby
@@ -86,11 +98,21 @@ Input options:
 - `param_fields:` - hash of query key => CSS selector; live values read from those fields on each fetch; changing a watched field clears the current selection
 - `page_size:` - client page size (clamped to 1..50, default 20)
 
-### Authorization and bounds
+### Authentication, authorization, and bounds
 
-Every options `collection_action` calls `authorize! :index, config.resource_class`. Hosts that need a finer permission must wrap the block or authorize in the host policy for `index?` on that resource.
+Options run on `ActiveAdmin::ResourceController`, so ActiveAdmin
+`authentication_method` runs before the action. Every options
+`collection_action` then calls `authorize! :index, config.resource_class`.
+Hosts that need a finer permission must wrap the block or authorize in the host
+policy for `index?` on that resource. ActiveAdmin's default AccessDenied JSON
+response uses HTTP unauthorized.
 
 Server clamps `limit` to 1..50 and `q` to 200 bytes. The Stimulus controller applies the same page-size and query bounds and uses the clamped limit for `hasMore` pagination. Host search blocks must stay indexed and bounded themselves; the gem does not rewrite queries or add indexes.
+
+Register the Stimulus controller on the ActiveAdmin importmap entry (dummy boots
+`active_admin_autocompletes_boot` for system specs). Coexistence with a GraphQL
+admin mount in the same app is covered by request and Playwright system specs;
+this gem does not add GraphQL autocomplete fields.
 
 ## Assets
 
